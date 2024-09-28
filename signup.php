@@ -1,3 +1,46 @@
+<?php
+
+require 'PHPMailer-master/src/PHPMailer.php';
+require 'PHPMailer-master/src/SMTP.php';
+require 'PHPMailer-master/src/Exception.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    $name = htmlspecialchars($_POST['name']);
+    $email = htmlspecialchars($_POST['email']);
+
+    
+    $mail = new PHPMailer(true);
+    
+    try {
+        $mail->isSMTP();                                        
+        $mail->Host       = 'smtp.gmail.com';                 
+        $mail->SMTPAuth   = true;                            
+        $mail->Username   = getenv('GMAIL_USERNAME');         // environment variable
+        $mail->Password   = getenv('GMAIL_PASSWORD');         // environment variable
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;   
+        $mail->Port       = 587;                             
+
+        
+        $mail->setFrom(getenv('GMAIL_USERNAME'), 'Ojuka');
+        $mail->addAddress($email, $name);                         
+        
+        $mail->isHTML(false);                                     
+        $mail->Subject = 'Thank you for signing up!';
+        $mail->Body    = "Dear $name,\n\nThank you for signing up to our platform!\nWelcome on board.\n\nBest regards,\nThe Team";
+
+        $mail->send();
+        echo "Thank you for signing up, $name! A confirmation email has been sent to $email.";
+    } catch (Exception $e) {
+        echo "There was a problem sending the email. Mailer Error: {$mail->ErrorInfo}";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,26 +116,4 @@
     </div>
 </body>
 </html>
-
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get the form data
-    $name = htmlspecialchars($_POST['name']);
-    $email = htmlspecialchars($_POST['email']);
-
-    // The email subject and message (with mail merge)
-    $subject = "Thank you for signing up!";
-    $message = "Dear $name,\n\nThank you for signing up to our platform!\nWelcome on board.\n\nBest regards,\nThe Team";
-
-    // Email headers
-    $headers = "From: ojukaamy43@gmail.com";
-
-    // Send the email
-    if (mail($email, $subject, $message, $headers)) {
-        echo "Thank you for signing up, $name! A confirmation email has been sent to $email.";
-    } else {
-        echo "There was a problem sending the email.";
-    }
-}
-?>
 
