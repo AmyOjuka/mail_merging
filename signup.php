@@ -82,10 +82,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // The email subject and message (with mail merge)
     $subject = "Thank you for signing up!";
-    $message = "Dear $name,\n\nThank you for signing up to our platform!\nWe are excited to have you on board. Stay tuned for updates and announcements.\n\nBest regards,\nThe Team";
+    $message = "Dear $name,\n\nThank you for signing up to our platform!\nWelcome on board.\n\nBest regards,\nThe Team";
 
     // Email headers
-    $headers = "From: noreply@yourdomain.com";
+    $headers = "From: ojukaamy43@gmail.com";
 
     // Send the email
     if (mail($email, $subject, $message, $headers)) {
@@ -95,3 +95,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
