@@ -1,5 +1,4 @@
 <?php
-
 require 'PHPMailer-master/src/PHPMailer.php';
 require 'PHPMailer-master/src/SMTP.php';
 require 'PHPMailer-master/src/Exception.php';
@@ -8,29 +7,36 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
     $name = htmlspecialchars($_POST['name']);
     $email = htmlspecialchars($_POST['email']);
 
     
-    $mail = new PHPMailer(true);
-    
     try {
-        $mail->isSMTP();                                        
-        $mail->Host       = 'smtp.gmail.com';                 
-        $mail->SMTPAuth   = true;                            
-        $mail->Username   = getenv('GMAIL_USERNAME');         // environment variable
-        $mail->Password   = getenv('GMAIL_PASSWORD');         // environment variable
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;   
-        $mail->Port       = 587;                             
+        $dsn = 'mysql:host=localhost;dbname=ICS_22;charset=utf8mb4';
+        $pdo = new PDO($dsn, 'root', ''); 
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         
-        $mail->setFrom(getenv('GMAIL_USERNAME'), 'Ojuka');
-        $mail->addAddress($email, $name);                         
+        $stmt = $pdo->prepare("INSERT INTO users (name, email) VALUES (:name, :email)");
+        $stmt->execute(['name' => $name, 'email' => $email]);
+
         
-        $mail->isHTML(false);                                     
-        $subject = "Welcome to ICS 2.2! Account Verification";
-            $message = "
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = getenv('GMAIL_USERNAME'); // environment variable
+            $mail->Password = getenv('GMAIL_PASSWORD'); // environment variable
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom(getenv('GMAIL_USERNAME'), 'Ojuka');
+            $mail->addAddress($email, $name);
+
+            $mail->isHTML(true);
+            $mail->Subject = "Welcome to ICS 2.2! Account Verification";
+            $mail->Body = "
             <html>
             <head>
               <title>Welcome to ICS 2.2! Account Verification</title>
@@ -38,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <body>
               <h1>Hello $name,</h1>
               <p>You requested an account on ICS 2.2.</p>
-              <p>In order to use this account you need to <a>Click Here<a>  to complete the registration process.</p>
+              <p>In order to use this account you need to <a href='#'>Click Here</a> to complete the registration process.</p>
               <br>
               <p>Regards,</p>
               <p>Systems Admin</p>
@@ -47,14 +53,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </html>
             ";
 
-        $mail->send();
-        echo "Thank you for signing up, $name! A confirmation email has been sent to $email.";
-    } catch (Exception $e) {
-        echo "There was a problem sending the email. Mailer Error: {$mail->ErrorInfo}";
+            $mail->send();
+            echo "Thank you for signing up, $name! A confirmation email has been sent to $email.";
+        } catch (Exception $e) {
+            echo "There was a problem sending the email. Mailer Error: {$mail->ErrorInfo}";
+        }
+
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -131,4 +140,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </body>
 </html>
-
