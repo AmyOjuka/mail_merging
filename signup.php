@@ -29,8 +29,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->addAddress($email, $name);                         
         
         $mail->isHTML(false);                                     
-        $mail->Subject = 'Thank you for signing up!';
-        $mail->Body    = "Dear $name,\n\nThank you for signing up to our platform!\nWelcome on board.\n\nBest regards,\nThe Team";
+        $subject = "Welcome to ICS 2.2! Account Verification";
+            $message = "
+            <html>
+            <head>
+              <title>Welcome to ICS 2.2! Account Verification</title>
+            </head>
+            <body>
+              <h1>Hello $name,</h1>
+              <p>You requested an account on ICS 2.2.</p>
+              <p>In order to use this account you need to <a>Click Here<a>  to complete the registration process.</p>
+              <br>
+              <p>Regards,</p>
+              <p>Systems Admin</p>
+              <p>ICS 2.2</p>
+            </body>
+            </html>
+            ";
 
         $mail->send();
         echo "Thank you for signing up, $name! A confirmation email has been sent to $email.";
